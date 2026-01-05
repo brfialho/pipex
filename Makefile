@@ -1,4 +1,4 @@
-CC= cc -Werror -Wextra -Wall -I.
+CC= cc -Werror -Wextra -Wall -Ilibft/headers
 
 SRC= main.c
 
@@ -7,10 +7,13 @@ OBJ= $(SRC:%.c=$(O_DIR)%.o)
 
 NAME= pipex
 
-all: $(NAME)
+LIBFT= libft/libft.a
+LIBPATH= libft/
+
+all: $(LIBFT) $(NAME)
 
 $(NAME): $(OBJ)
-	@$(CC) $(OBJ) -o $(NAME)
+	@$(CC) $(OBJ) $(LIBFT) -o $(NAME)
 	@echo -n "\033[32m\nSuccessfully Generated \033[0m$(NAME) \n\n"
 
 $(O_DIR)%.o: %.c
@@ -19,6 +22,8 @@ $(O_DIR)%.o: %.c
 	@sleep 0.0001
 	@$(CC) -c $< -o $@
 
+$(LIBFT):
+	@make --no-print-directory -C $(LIBPATH)
 
 clean:
 	@echo "\033[95mCleansing $(NAME) Objects"
@@ -29,9 +34,11 @@ clean:
 	@sleep 0.2
 	@echo ".\033[0m"
 	@sleep 0.2
+	@make --no-print-directory -C $(LIBPATH) clean
 	@rm -rf $(O_DIR)
 
 fclean:
+	@make --no-print-directory -C $(LIBPATH) fclean
 	@echo "\033[95mCleansing $(NAME)"
 	@sleep 0.7
 	@echo -n "."
@@ -45,4 +52,4 @@ fclean:
 
 re: fclean all
 
-.PHONY: re fclean clean
+.PHONY: $(LIBFT) re fclean clean
