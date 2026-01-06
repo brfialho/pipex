@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/05 21:59:41 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/05 22:01:44 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	parse_cmd_lst(t_pipex *pipex, int argc, char **argv)
 		exit(2);
 	i = 1;
 	while (++i < argc - 1)
-		lst_add_end(pipex->cmd, lst_new_node(ft_strdup(argv[i])));
+		lst_add_end(pipex->cmd, lst_new_node(argv[i]));
 }
 
 
@@ -44,6 +44,6 @@ int	main(int argc, char **argv)
 
 	parsing(&pipex, argc, argv);
 	lst_for_each(*pipex.cmd, print_node);
-	lst_del_all(pipex.cmd, free);
+	lst_del_all(pipex.cmd, NULL);
 	free(pipex.cmd);
 }
