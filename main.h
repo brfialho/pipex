@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:07:45 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/07 21:20:09 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:58:12 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ typedef struct s_file
 
 typedef struct s_pipex
 {
+	int		pid;
+	int		fd[2];
 	t_file	input;
 	t_file	output;
 	t_list	**cmd;

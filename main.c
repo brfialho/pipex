@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/07 21:27:10 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/07 22:33:25 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,29 @@ void	open_files(t_pipex *pipex)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
+void	child_labour(t_pipex *pipex, char *cmd)
+{
+	ft_printf ("Child with CMD: %s\n", cmd);
+	destroy_all(pipex, CLEAN);
+	exit(1);
+}
+
+void	create_childs(t_pipex *pipex)
+{
+	t_list	*lst;
+
+	lst = *pipex->cmd;
+	while (lst)
+	{
+		pipex->pid = fork();
+		if (pipex->pid)
+			waitpid(pipex->pid, NULL, 0);
+		else
+			child_labour(pipex, lst->content);
+		lst = lst->next;
+	}
+}
+
 
 int	main(int argc, char **argv)
 {
@@ -71,7 +94,11 @@ int	main(int argc, char **argv)
 
 	parsing(&pipex, argc, argv);
 	open_files(&pipex);
+	
+	create_childs(&pipex);
 
+
+	
 	close(pipex.input.fd);
 	close(pipex.output.fd);
 	destroy_all(&pipex, CLEAN);
