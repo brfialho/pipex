@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/07 22:33:25 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/07 22:54:21 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ void	destroy_all(t_pipex *pipex, t_error error)
 		ft_printf("%s: %s: No such file or directory\n", ((t_list *)(*pipex->cmd)->content), pipex->input.path);
 	if (error == OPEN)
 		ft_printf("Could not open files\n");
+	if (error == MEM)
+		ft_printf("Memory error\n");
 	lst_del_all(pipex->cmd, NULL);
 	free(pipex->cmd);
 	exit(1);
@@ -66,11 +68,17 @@ void	open_files(t_pipex *pipex)
 
 void	child_labour(t_pipex *pipex, char *cmd)
 {
-	ft_printf ("Child with CMD: %s\n", cmd);
+	char	*bin;
+
+	bin = ft_strjoin("/bin/", cmd);
+	if (!bin)
+		destroy_all(pipex, MEM);
+	execv(bin, (char *[]){cmd, NULL});
+	ft_printf("Command '%s' not found\n", cmd);
+	free(bin);
 	destroy_all(pipex, CLEAN);
 	exit(1);
 }
-
 void	create_childs(t_pipex *pipex)
 {
 	t_list	*lst;
@@ -97,8 +105,6 @@ int	main(int argc, char **argv)
 	
 	create_childs(&pipex);
 
-
-	
 	close(pipex.input.fd);
 	close(pipex.output.fd);
 	destroy_all(&pipex, CLEAN);
