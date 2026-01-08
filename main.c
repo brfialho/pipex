@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/07 22:54:21 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/07 22:58:11 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,30 +25,20 @@ void	destroy_all(t_pipex *pipex, t_error error)
 	exit(1);
 }
 
-void	parse_cmd_lst(t_pipex *pipex, int argc, char **argv)
+void	parsing(t_pipex *pipex, int argc, char **argv)
 {
 	int	i;
 
+	if (argc < 5)
+		exit(1);
 	pipex->cmd = ft_calloc(1, sizeof(t_list **));
 	if (!pipex->cmd)
 		exit(2);
 	i = 1;
 	while (++i < argc - 1)
 		lst_add_end(pipex->cmd, lst_new_node(argv[i]));
-}
-
-
-void	parsing(t_pipex *pipex, int argc, char **argv)
-{
-	if (argc < 5)
-		exit(1);
-	parse_cmd_lst(pipex, argc, argv);
 	pipex->input.path = argv[1];
 	pipex->output.path = argv[argc - 1];
-}
-void	print_node(void *content)
-{
-	ft_printf("%s\n", (char *)content);
 }
 
 void	open_files(t_pipex *pipex)
@@ -79,6 +69,7 @@ void	child_labour(t_pipex *pipex, char *cmd)
 	destroy_all(pipex, CLEAN);
 	exit(1);
 }
+
 void	create_childs(t_pipex *pipex)
 {
 	t_list	*lst;
@@ -94,7 +85,6 @@ void	create_childs(t_pipex *pipex)
 		lst = lst->next;
 	}
 }
-
 
 int	main(int argc, char **argv)
 {
