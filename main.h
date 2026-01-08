@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:07:45 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/05 21:18:51 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:20:09 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,12 @@ typedef struct s_pipex
 	t_file	output;
 	t_list	**cmd;
 }	t_pipex;
+
+typedef enum e_error
+{
+	CLEAN,
+	INPUT_FILE,
+	OPEN
+}	t_error;
 
 #endif
