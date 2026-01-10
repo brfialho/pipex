@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:07:45 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/10 14:37:24 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/10 15:34:13 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 # include <fcntl.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
+
+# define READ 0
+# define WRITE 1
 
 typedef struct s_file
 {

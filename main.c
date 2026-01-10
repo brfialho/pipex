@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/10 15:07:49 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/10 15:40:25 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,23 +56,17 @@ void	open_files(t_pipex *pipex)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
-void	send_test_str(t_pipex *pipex, char *s)
-{
-	while (*s)
-		write(pipex->pipe[1], s++, 1);
-}
-
 void	child_labour(t_pipex *pipex, char *cmd)
 {
 	char	*bin;
 
-	close(pipex->pipe[0]);
+	close(pipex->pipe[READ]);
 	bin = ft_strjoin("/bin/", cmd);
 	if (!bin)
 		destroy_all(pipex, MEM);
+	dup2(pipex->pipe[WRITE], 1);
 	execv(bin, (char *[]){cmd, NULL});
-	send_test_str(pipex, bin);
-	close(pipex->pipe[1]);
+	close(pipex->pipe[WRITE]);
 	ft_printf("Command '%s' not found\n", cmd);
 	free(bin);
 	destroy_all(pipex, CLEAN);
