@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/07 22:58:11 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/10 15:07:49 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,25 +49,43 @@ void	open_files(t_pipex *pipex)
 	if (pipex->input.fd == -1)
 		destroy_all(pipex, OPEN);
 	if (access(pipex->output.path, F_OK))
-		pipex->output.fd = open(pipex->output.path, O_CREAT | O_WRONLY);
+		pipex->output.fd = open(pipex->output.path, O_CREAT | O_WRONLY, 0666);
 	else
 		pipex->output.fd = open(pipex->output.path, O_WRONLY);
 	if (pipex->output.fd == -1)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
+void	send_test_str(t_pipex *pipex, char *s)
+{
+	while (*s)
+		write(pipex->pipe[1], s++, 1);
+}
+
 void	child_labour(t_pipex *pipex, char *cmd)
 {
 	char	*bin;
 
+	close(pipex->pipe[0]);
 	bin = ft_strjoin("/bin/", cmd);
 	if (!bin)
 		destroy_all(pipex, MEM);
 	execv(bin, (char *[]){cmd, NULL});
+	send_test_str(pipex, bin);
+	close(pipex->pipe[1]);
 	ft_printf("Command '%s' not found\n", cmd);
 	free(bin);
 	destroy_all(pipex, CLEAN);
 	exit(1);
+}
+
+void	read_to_file(t_pipex *pipex)
+{
+	int 	b_read;
+	char	c;
+
+	while ((b_read = read(pipex->pipe[0], &c, 1)))
+		write(pipex->output.fd, &c, 1);
 }
 
 void	create_childs(t_pipex *pipex)
@@ -77,13 +95,23 @@ void	create_childs(t_pipex *pipex)
 	lst = *pipex->cmd;
 	while (lst)
 	{
+		pipe(pipex->pipe);
 		pipex->pid = fork();
-		if (pipex->pid)
-			waitpid(pipex->pid, NULL, 0);
-		else
+		if (pipex->pid == 0)
 			child_labour(pipex, lst->content);
+		close(pipex->pipe[1]);
+		waitpid(pipex->pid, NULL, 0);
+		read_to_file(pipex);
+		close(pipex->pipe[0]);
 		lst = lst->next;
 	}
+	// while (lst)
+	// {
+	// 	pipex->pid = fork();
+	// 	if (pipex->pid == 0)
+	// 		child_labour(pipex, lst->content);
+	// 	lst = lst->next;
+	// }
 }
 
 int	main(int argc, char **argv)
