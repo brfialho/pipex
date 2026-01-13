@@ -6,11 +6,16 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 17:39:20 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:15:03 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
+
+void	del(void *content)
+{
+	ft_split_free((char **)content);
+}
 
 void	destroy_all(t_pipex *pipex, t_error error)
 {
@@ -22,7 +27,7 @@ void	destroy_all(t_pipex *pipex, t_error error)
 		ft_printf("Memory error\n");
 	if (error == PIPE)
 		ft_printf("Memory error\n");
-	lst_del_all(pipex->cmd, NULL);
+	lst_del_all(pipex->cmd, del);
 	free(pipex->cmd);
 	close(pipex->input.fd);
 	close(pipex->output.fd);
@@ -40,7 +45,7 @@ void	parsing(t_pipex *pipex, int argc, char **argv)
 		exit(2);
 	i = 1;
 	while (++i < argc - 1)
-		lst_add_end(pipex->cmd, lst_new_node(argv[i]));
+		lst_add_end(pipex->cmd, lst_new_node(ft_split(argv[i], ' ')));
 	pipex->input.path = argv[1];
 	pipex->output.path = argv[argc - 1];
 }
@@ -60,36 +65,36 @@ void	open_files(t_pipex *pipex)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
-void	first_child(t_pipex *pipex, char *cmd)
+void	first_child(t_pipex *pipex, char **args)
 {
 	char	*bin;
 
 	close(pipex->pipe[READ]);
-	bin = ft_strjoin("/bin/", cmd);
+	bin = ft_strjoin("/bin/", args[0]);
 	if (!bin)
 		destroy_all(pipex, MEM);
 	dup2(pipex->pipe[WRITE], 1);
 	close(pipex->pipe[WRITE]);
-	execv(bin, (char *[]){cmd, pipex->input.path, NULL});
-	ft_printf("Command '%s' not found\n", cmd);
+	execv(bin, (char *[]){args[0], pipex->input.path, NULL});
+	ft_printf("Command '%s' not found\n", args[0]);
 	free(bin);
 	destroy_all(pipex, CLEAN);
 	exit(1);
 }
 
-void	last_child(t_pipex *pipex, char *cmd)
+void	last_child(t_pipex *pipex, char **args)
 {
 	char	*bin;
 
-	bin = ft_strjoin("/bin/", cmd);
+	bin = ft_strjoin("/bin/", args[0]);
 	if (!bin)
 		destroy_all(pipex, MEM);
 	close(pipex->pipe[WRITE]);
 	dup2(pipex->pipe[READ], 0);
 	close(pipex->pipe[READ]);
 	dup2(pipex->output.fd, 1);
-	execv(bin, (char *[]){cmd, NULL});
-	ft_printf("Command '%s' not found\n", cmd);
+	execv(bin, args);
+	ft_printf("Command '%s' not found\n", args[0]);
 	free(bin);
 	destroy_all(pipex, CLEAN);
 	exit(1);
