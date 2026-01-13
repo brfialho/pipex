@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 17:03:21 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 17:25:04 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@ void	destroy_all(t_pipex *pipex, t_error error)
 		ft_printf("Could not open files\n");
 	if (error == MEM)
 		ft_printf("Memory error\n");
-	if (pipex->pipe)
-		free(pipex->pipe);
+	if (error == PIPE)
+		ft_printf("Memory error\n");
 	lst_del_all(pipex->cmd, NULL);
 	free(pipex->cmd);
+	close(pipex->input.fd);
+	close(pipex->output.fd);
 	exit(1);
 }
 
@@ -58,16 +60,16 @@ void	open_files(t_pipex *pipex)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
-void	close_pipes(t_pipex *pipex)
+void	create_childs(t_pipex *pipex)
 {
-	int	pipes;
-
-	pipes = lst_size(*pipex->cmd) - 1;
-	while (pipes--)
-	{
-		close(pipex->pipe[READ]);
-		close(pipex->pipe[WRITE]);
-	}
+	if (pipe(pipex->pipe) == -1)
+		destroy_all(pipex, PIPE);
+	if (!fork())
+		first_child(pipex, ((t_list *)*pipex->cmd)->content);
+	if (!fork())
+		first_child(pipex, ((t_list *)*pipex->cmd)->next->content);
+	close(pipex->pipe[READ]);
+	close(pipex->pipe[WRITE]);
 }
 
 void	kill_childs(t_pipex *pipex)
@@ -86,14 +88,22 @@ int	main(int argc, char **argv)
 	ft_bzero(&pipex, sizeof(t_pipex));
 	parsing(&pipex, argc, argv);
 	open_files(&pipex);
-	create_pipes(&pipex);
 	create_childs(&pipex);
-	close_pipes(&pipex);
 	kill_childs(&pipex);
-	close(pipex.input.fd);
-	close(pipex.output.fd);
 	destroy_all(&pipex, CLEAN);
 }
+
+// void	close_pipes(t_pipex *pipex)
+// {
+// 	int	pipes;
+
+// 	pipes = lst_size(*pipex->cmd) - 1;
+// 	while (pipes--)
+// 	{
+// 		close(pipex->pipe[READ]);
+// 		close(pipex->pipe[WRITE]);
+// 	}
+// }
 
 // void	first_child(t_pipex *pipex, char *cmd, int i)
 // {

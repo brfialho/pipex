@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:07:45 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 17:00:48 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 17:06:56 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ typedef enum e_error
 	CLEAN,
 	INPUT_FILE,
 	OPEN,
+	PIPE,
 	MEM
 }	t_error;
 
