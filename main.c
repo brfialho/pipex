@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 18:15:03 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:29:53 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,15 @@ void	first_child(t_pipex *pipex, char **args)
 {
 	char	*bin;
 
-	close(pipex->pipe[READ]);
 	bin = ft_strjoin("/bin/", args[0]);
 	if (!bin)
 		destroy_all(pipex, MEM);
+	close(pipex->pipe[READ]);
+	dup2(pipex->input.fd, 0);
+	close(pipex->input.fd);
 	dup2(pipex->pipe[WRITE], 1);
 	close(pipex->pipe[WRITE]);
-	execv(bin, (char *[]){args[0], pipex->input.path, NULL});
+	execv(bin, args);
 	ft_printf("Command '%s' not found\n", args[0]);
 	free(bin);
 	destroy_all(pipex, CLEAN);
@@ -93,6 +95,7 @@ void	last_child(t_pipex *pipex, char **args)
 	dup2(pipex->pipe[READ], 0);
 	close(pipex->pipe[READ]);
 	dup2(pipex->output.fd, 1);
+	close(pipex->output.fd);
 	execv(bin, args);
 	ft_printf("Command '%s' not found\n", args[0]);
 	free(bin);
@@ -119,6 +122,11 @@ void	kill_childs(t_pipex *pipex)
 	childs = lst_size(*pipex->cmd);
 	while (childs--)
 		waitpid(0 , NULL, 0);
+}
+
+void	print_each(void *content)
+{
+	ft_split_print((char **)content);
 }
 
 int	main(int argc, char **argv)
