@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 17:25:04 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 17:31:20 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,40 @@ void	open_files(t_pipex *pipex)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
+void	first_child(t_pipex *pipex, char *cmd)
+{
+	char	*bin;
+
+	close(pipex->pipe[READ]);
+	bin = ft_strjoin("/bin/", cmd);
+	if (!bin)
+		destroy_all(pipex, MEM);
+	dup2(pipex->pipe[WRITE], 1);
+	close(pipex->pipe[WRITE]);
+	execv(bin, (char *[]){cmd, NULL});
+	ft_printf("Command '%s' not found\n", cmd);
+	free(bin);
+	destroy_all(pipex, CLEAN);
+	exit(1);
+}
+
+void	last_child(t_pipex *pipex, char *cmd)
+{
+	char	*bin;
+
+	close(pipex->pipe[READ]);
+	bin = ft_strjoin("/bin/", cmd);
+	if (!bin)
+		destroy_all(pipex, MEM);
+	dup2(pipex->output.fd, 1);
+	close(pipex->pipe[WRITE]);
+	execv(bin, (char *[]){cmd, NULL});
+	ft_printf("Command '%s' not found\n", cmd);
+	free(bin);
+	destroy_all(pipex, CLEAN);
+	exit(1);
+}
+
 void	create_childs(t_pipex *pipex)
 {
 	if (pipe(pipex->pipe) == -1)
@@ -67,7 +101,7 @@ void	create_childs(t_pipex *pipex)
 	if (!fork())
 		first_child(pipex, ((t_list *)*pipex->cmd)->content);
 	if (!fork())
-		first_child(pipex, ((t_list *)*pipex->cmd)->next->content);
+		last_child(pipex, ((t_list *)*pipex->cmd)->next->content);
 	close(pipex->pipe[READ]);
 	close(pipex->pipe[WRITE]);
 }
