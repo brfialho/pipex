@@ -1,8 +1,3 @@
-🌐 Available languages:
-🇺🇸 English | 🇧🇷 [Português](README.pt.md)
-
----
-
 # Pipex
 
 Um projeto da 42 School que replica o comportamento de redirecionamentos de pipe do shell em C.
