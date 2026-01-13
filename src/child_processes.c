@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 18:43:59 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 18:48:47 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:54:27 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	kill_childs(t_pipex *pipex)
 
 	childs = lst_size(*pipex->cmd);
 	while (childs--)
-		waitpid(0 , NULL, 0);
+		waitpid(0, NULL, 0);
 }
 
 static void	first_child(t_pipex *pipex, char **args)

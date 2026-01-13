@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 18:43:12 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 18:46:43 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:54:00 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,5 +40,5 @@ void	open_files(t_pipex *pipex)
 	else
 		pipex->output.fd = open(pipex->output.path, O_WRONLY);
 	if (pipex->output.fd == -1)
-		close(pipex->output.fd), destroy_all(pipex, OPEN);
+		destroy_all(pipex, OPEN);
 }

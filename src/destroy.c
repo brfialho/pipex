@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 18:45:06 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 18:46:15 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:59:08 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	del(void *content);
 void	destroy_all(t_pipex *pipex, t_error error)
 {
 	if (error == INPUT_FILE)
-		ft_printf("%s: %s: No such file or directory\n", ((t_list *)(*pipex->cmd)->content), pipex->input.path);
+		ft_printf("%s: %s: No such file or directory\n", ((char **)((t_list *)(*pipex->cmd)->content))[0], pipex->input.path);
 	if (error == OPEN)
 		ft_printf("Could not open files\n");
 	if (error == MEM)
