@@ -84,16 +84,6 @@ pipex/
 5. **Wait**: Parent waits for all children to finish
 6. **Cleanup**: Closes file descriptors and frees memory
 
-### Pipe Flow Diagram
-
-```
-┌─────────┐    ┌──────────┐    ┌───────┐    ┌──────────┐    ┌──────────┐
-│ infile  │ →  │  cmd1    │ →  │ pipe  │ →  │  cmd2    │ →  │ outfile  │
-└─────────┘    └──────────┘    └───────┘    └──────────┘    └──────────┘
-   stdin         stdout         ↓    ↑        stdin          stdout
-               (write end)           (read end)
-```
-
 ## 📚 Key Concepts
 
 - **`pipe()`**: Creates a unidirectional data channel
