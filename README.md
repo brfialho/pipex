@@ -38,11 +38,25 @@ The program replicates the following shell behavior:
 
 ## 🛠️ Compilation
 
+### Cloning
+
+```bash
+git clone --recurse-submodules https://github.com/brfialho/pipex.git
+```
+
+If you've already cloned without submodules:
+```bash
+git submodule update --init --recursive
+```
+
+### Building
+
 ```bash
 make        # Compile the project
 make clean  # Remove object files
 make fclean # Remove object files and executable
 make re     # Recompile everything
+```
 ```
 
 ## 📁 Project Structure
@@ -55,7 +69,7 @@ pipex/
 │   ├── child_processes.c   # Fork and exec logic
 │   ├── destroy.c           # Memory cleanup and error handling
 │   └── parsing.c           # Argument parsing
-├── libft/              # 42 libft library
+├── libft/              # My libft library
 ├── files/              # Test files
 └── Makefile
 ```
@@ -91,17 +105,12 @@ pipex/
 
 ## ⚠️ Error Handling
 
-The program handles the following errors:
-- Invalid number of arguments
-- Input file not found or no read permission
-- Output file cannot be created or no write permission
-- Command not found
-- Pipe creation failure
-- Memory allocation failure
+There is minimal error handling in this project since Im doing it only in preparation for minishell, thus it will not be submited.
+The only reason I did this is for learning the basics of pipe.
 
 ## 👤 Author
 
-**brfialho** - 42 Student
+**brfialho** - 42 Cadet
 
 ## 📄 License
 
