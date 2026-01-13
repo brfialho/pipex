@@ -57,7 +57,6 @@ make clean  # Remove object files
 make fclean # Remove object files and executable
 make re     # Recompile everything
 ```
-```
 
 ## 📁 Project Structure
 
