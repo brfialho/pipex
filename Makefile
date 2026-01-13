@@ -1,6 +1,9 @@
-CC= cc -Werror -Wextra -Wall -Ilibft/headers
+CC= cc -Werror -Wextra -Wall -Ilibft/headers -I.
 
-SRC= main.c
+SRC= main.c \
+	src/child_processes.c \
+	src/destroy.c \
+	src/parsing.c
 
 O_DIR= obj/
 OBJ= $(SRC:%.c=$(O_DIR)%.o)

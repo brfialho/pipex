@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:07:45 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 17:06:56 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:50:41 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,5 +43,11 @@ typedef enum e_error
 	PIPE,
 	MEM
 }	t_error;
+
+void	parsing(t_pipex *pipex, int argc, char **argv);
+void	open_files(t_pipex *pipex);
+void	create_childs(t_pipex *pipex);
+void	kill_childs(t_pipex *pipex);
+void	destroy_all(t_pipex *pipex, t_error error);
 
 #endif

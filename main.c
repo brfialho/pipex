@@ -6,128 +6,11 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/13 18:29:53 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 18:49:18 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
-
-void	del(void *content)
-{
-	ft_split_free((char **)content);
-}
-
-void	destroy_all(t_pipex *pipex, t_error error)
-{
-	if (error == INPUT_FILE)
-		ft_printf("%s: %s: No such file or directory\n", ((t_list *)(*pipex->cmd)->content), pipex->input.path);
-	if (error == OPEN)
-		ft_printf("Could not open files\n");
-	if (error == MEM)
-		ft_printf("Memory error\n");
-	if (error == PIPE)
-		ft_printf("Memory error\n");
-	lst_del_all(pipex->cmd, del);
-	free(pipex->cmd);
-	close(pipex->input.fd);
-	close(pipex->output.fd);
-	exit(1);
-}
-
-void	parsing(t_pipex *pipex, int argc, char **argv)
-{
-	int	i;
-
-	if (argc < 5)
-		exit(1);
-	pipex->cmd = ft_calloc(1, sizeof(t_list **));
-	if (!pipex->cmd)
-		exit(2);
-	i = 1;
-	while (++i < argc - 1)
-		lst_add_end(pipex->cmd, lst_new_node(ft_split(argv[i], ' ')));
-	pipex->input.path = argv[1];
-	pipex->output.path = argv[argc - 1];
-}
-
-void	open_files(t_pipex *pipex)
-{
-	if (access(pipex->input.path, F_OK))
-		destroy_all(pipex, INPUT_FILE);
-	pipex->input.fd = open(pipex->input.path, O_RDONLY);
-	if (pipex->input.fd == -1)
-		destroy_all(pipex, OPEN);
-	if (access(pipex->output.path, F_OK))
-		pipex->output.fd = open(pipex->output.path, O_CREAT | O_WRONLY, 0666);
-	else
-		pipex->output.fd = open(pipex->output.path, O_WRONLY);
-	if (pipex->output.fd == -1)
-		close(pipex->output.fd), destroy_all(pipex, OPEN);
-}
-
-void	first_child(t_pipex *pipex, char **args)
-{
-	char	*bin;
-
-	bin = ft_strjoin("/bin/", args[0]);
-	if (!bin)
-		destroy_all(pipex, MEM);
-	close(pipex->pipe[READ]);
-	dup2(pipex->input.fd, 0);
-	close(pipex->input.fd);
-	dup2(pipex->pipe[WRITE], 1);
-	close(pipex->pipe[WRITE]);
-	execv(bin, args);
-	ft_printf("Command '%s' not found\n", args[0]);
-	free(bin);
-	destroy_all(pipex, CLEAN);
-	exit(1);
-}
-
-void	last_child(t_pipex *pipex, char **args)
-{
-	char	*bin;
-
-	bin = ft_strjoin("/bin/", args[0]);
-	if (!bin)
-		destroy_all(pipex, MEM);
-	close(pipex->pipe[WRITE]);
-	dup2(pipex->pipe[READ], 0);
-	close(pipex->pipe[READ]);
-	dup2(pipex->output.fd, 1);
-	close(pipex->output.fd);
-	execv(bin, args);
-	ft_printf("Command '%s' not found\n", args[0]);
-	free(bin);
-	destroy_all(pipex, CLEAN);
-	exit(1);
-}
-
-void	create_childs(t_pipex *pipex)
-{
-	if (pipe(pipex->pipe) == -1)
-		destroy_all(pipex, PIPE);
-	if (!fork())
-		first_child(pipex, ((t_list *)*pipex->cmd)->content);
-	if (!fork())
-		last_child(pipex, ((t_list *)*pipex->cmd)->next->content);
-	close(pipex->pipe[READ]);
-	close(pipex->pipe[WRITE]);
-}
-
-void	kill_childs(t_pipex *pipex)
-{
-	int	childs;
-
-	childs = lst_size(*pipex->cmd);
-	while (childs--)
-		waitpid(0 , NULL, 0);
-}
-
-void	print_each(void *content)
-{
-	ft_split_print((char **)content);
-}
 
 int	main(int argc, char **argv)
 {
@@ -140,6 +23,11 @@ int	main(int argc, char **argv)
 	kill_childs(&pipex);
 	destroy_all(&pipex, CLEAN);
 }
+
+// void	print_each(void *content)
+// {
+// 	ft_split_print((char **)content);
+// }
 
 // void	close_pipes(t_pipex *pipex)
 // {
