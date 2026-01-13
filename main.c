@@ -6,7 +6,7 @@
 /*   By: brfialho <brfialho@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 20:05:36 by brfialho          #+#    #+#             */
-/*   Updated: 2026/01/10 20:43:55 by brfialho         ###   ########.fr       */
+/*   Updated: 2026/01/13 17:03:21 by brfialho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,127 +58,6 @@ void	open_files(t_pipex *pipex)
 		close(pipex->output.fd), destroy_all(pipex, OPEN);
 }
 
-char	*read_from_pipe(int fd)
-{
-	char	*buffer;
-	char	*arg;
-	int		b_read;
-
-	b_read = 128;
-	arg = NULL;
-	buffer = ft_calloc(128 + 1, sizeof(char));
-	if (!buffer)
-		return (NULL);
-	while (b_read == 128)
-	{
-		b_read = read(fd , buffer, 128);
-		arg = ft_strjoin_free(arg, buffer);
-	}
-	return (arg);
-}
-
-void	first_child(t_pipex *pipex, char *cmd, int i)
-{
-	char	*bin;
-
-	close(pipex->pipe[i][READ]);
-	bin = ft_strjoin("/bin/", cmd);
-	if (!bin)
-		destroy_all(pipex, MEM);
-	dup2(pipex->pipe[i][WRITE], 1);
-	close(pipex->pipe[i][WRITE]);
-	execv(bin, (char *[]){cmd, pipex->input.path, NULL});
-	ft_printf("Command '%s' not found\n", cmd);
-	free(bin);
-	destroy_all(pipex, CLEAN);
-	exit(1);
-}
-
-void	middle_child(t_pipex *pipex, char *cmd, int i)
-{
-	char	*bin;
-	char	*arg;
-
-	close(pipex->pipe[i + 1][READ]);
-	close(pipex->pipe[i][WRITE]);
-	arg = read_from_pipe(pipex->pipe[i][READ]);
-	close(pipex->pipe[i][READ]);
-	bin = ft_strjoin("/bin/", cmd);
-	if (!bin)
-		destroy_all(pipex, MEM);
-	dup2(pipex->pipe[i + 1][WRITE], 1);
-	close(pipex->pipe[i + 1][WRITE]);
-	execv(bin, (char *[]){cmd, arg, NULL});
-	ft_printf("Command '%s' not found\n", cmd);
-	free(bin);
-	destroy_all(pipex, CLEAN);
-	exit(1);
-}
-
-void	last_child(t_pipex *pipex, char *cmd, int i)
-{
-	char	*bin;
-	char	*arg;
-
-	close(pipex->pipe[i][WRITE]);
-	bin = ft_strjoin("/bin/", cmd);
-	if (!bin)
-		destroy_all(pipex, MEM);
-	arg = read_from_pipe(pipex->pipe[i][READ]);	
-	close(pipex->pipe[i][READ]);
-	dup2(pipex->output.fd, 1);
-	execv(bin, (char *[]){cmd, arg, NULL});
-	ft_printf("Command '%s' not found\n", cmd);
-	free(bin);
-	destroy_all(pipex, CLEAN);
-	exit(1);
-}
-
-// 0 1 2 3
-// 0 1 2 3 4
-// void	read_to_file(t_pipex *pipex)
-// {
-// 	int 	b_read;
-// 	char	c;
-
-// 	while ((b_read = read(pipex->pipe[0], &c, 1)))
-// 		write(pipex->output.fd, &c, 1);
-// }
-
-void	create_pipes(t_pipex *pipex)
-{
-	int	pipes;
-	int	i;
-
-	pipes = lst_size(*pipex->cmd) - 1;
-	pipex->pipe = ft_calloc(pipes, sizeof(int [2]));
-	if (!pipex->pipe)
-		destroy_all(pipex, MEM);
-	i = -1;
-	while (++i < pipes)
-		pipe(pipex->pipe[i]);
-}
-
-void	create_childs(t_pipex *pipex)
-{
-	t_list	*lst;
-	int		i;
-
-	lst = *pipex->cmd;
-	i = 0;
-	if (!fork())
-		first_child(pipex, lst->content, i);
-	lst = lst->next;
-	while (lst->next)
-	{
-		if (!fork())
-			middle_child(pipex, lst->content, i);
-		lst = lst->next;
-	}
-	if (!fork())
-		last_child(pipex, lst->content, i);
-}
-
 void	close_pipes(t_pipex *pipex)
 {
 	int	pipes;
@@ -186,8 +65,8 @@ void	close_pipes(t_pipex *pipex)
 	pipes = lst_size(*pipex->cmd) - 1;
 	while (pipes--)
 	{
-		close(pipex->pipe[pipes][READ]);
-		close(pipex->pipe[pipes][WRITE]);
+		close(pipex->pipe[READ]);
+		close(pipex->pipe[WRITE]);
 	}
 }
 
@@ -215,3 +94,94 @@ int	main(int argc, char **argv)
 	close(pipex.output.fd);
 	destroy_all(&pipex, CLEAN);
 }
+
+// void	first_child(t_pipex *pipex, char *cmd, int i)
+// {
+// 	char	*bin;
+
+// 	close(pipex->pipe[i][READ]);
+// 	bin = ft_strjoin("/bin/", cmd);
+// 	if (!bin)
+// 		destroy_all(pipex, MEM);
+// 	dup2(pipex->pipe[i][WRITE], 1);
+// 	close(pipex->pipe[i][WRITE]);
+// 	execv(bin, (char *[]){cmd, pipex->input.path, NULL});
+// 	ft_printf("Command '%s' not found\n", cmd);
+// 	free(bin);
+// 	destroy_all(pipex, CLEAN);
+// 	exit(1);
+// }
+
+// void	middle_child(t_pipex *pipex, char *cmd, int i)
+// {
+// 	char	*bin;
+// 	char	*arg;
+
+// 	close(pipex->pipe[i + 1][READ]);
+// 	close(pipex->pipe[i][WRITE]);
+// 	arg = read_from_pipe(pipex->pipe[i][READ]);
+// 	close(pipex->pipe[i][READ]);
+// 	bin = ft_strjoin("/bin/", cmd);
+// 	if (!bin)
+// 		destroy_all(pipex, MEM);
+// 	dup2(pipex->pipe[i + 1][WRITE], 1);
+// 	close(pipex->pipe[i + 1][WRITE]);
+// 	execv(bin, (char *[]){cmd, arg, NULL});
+// 	ft_printf("Command '%s' not found\n", cmd);
+// 	free(bin);
+// 	destroy_all(pipex, CLEAN);
+// 	exit(1);
+// }
+
+// void	last_child(t_pipex *pipex, char *cmd, int i)
+// {
+// 	char	*bin;
+// 	char	*arg;
+
+// 	close(pipex->pipe[i][WRITE]);
+// 	bin = ft_strjoin("/bin/", cmd);
+// 	if (!bin)
+// 		destroy_all(pipex, MEM);
+// 	arg = read_from_pipe(pipex->pipe[i][READ]);	
+// 	close(pipex->pipe[i][READ]);
+// 	dup2(pipex->output.fd, 1);
+// 	execv(bin, (char *[]){cmd, arg, NULL});
+// 	ft_printf("Command '%s' not found\n", cmd);
+// 	free(bin);
+// 	destroy_all(pipex, CLEAN);
+// 	exit(1);
+// }
+
+// void	create_pipes(t_pipex *pipex)
+// {
+// 	int	pipes;
+// 	int	i;
+
+// 	pipes = lst_size(*pipex->cmd) - 1;
+// 	pipex->pipe = ft_calloc(pipes, sizeof(int [2]));
+// 	if (!pipex->pipe)
+// 		destroy_all(pipex, MEM);
+// 	i = -1;
+// 	while (++i < pipes)
+// 		pipe(pipex->pipe[i]);
+// }
+
+// void	create_childs(t_pipex *pipex)
+// {
+// 	t_list	*lst;
+// 	int		i;
+
+// 	lst = *pipex->cmd;
+// 	i = 0;
+// 	if (!fork())
+// 		first_child(pipex, lst->content, i);
+// 	lst = lst->next;
+// 	while (lst->next)
+// 	{
+// 		if (!fork())
+// 			middle_child(pipex, lst->content, i);
+// 		lst = lst->next;
+// 	}
+// 	if (!fork())
+// 		last_child(pipex, lst->content, i);
+// }
